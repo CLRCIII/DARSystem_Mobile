@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/logo_container.dart';
+import 'dashboard_page.dart';
+import 'profile_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -74,7 +76,12 @@ class HomePage extends StatelessWidget {
                       height: 46,
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: route to dashboard page later
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DashboardPage(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0C4C7F),
@@ -265,15 +272,28 @@ class _HomeTopBar extends StatelessWidget {
           const Spacer(),
           _TopBarNavButton(label: 'Home', isActive: true, onTap: () {}),
           const SizedBox(width: 8),
-          _TopBarNavButton(label: 'Dashboard', onTap: () {}),
+          _TopBarNavButton(
+            label: 'Dashboard',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const DashboardPage()),
+              );
+            },
+          ),
           const SizedBox(width: 10),
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.notifications_none, color: Colors.white),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.person_outline, color: Colors.white),
+          _TopBarNavButton(
+            label: 'Profile',
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
           ),
         ],
       ),

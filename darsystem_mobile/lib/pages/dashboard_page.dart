@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/logo_container.dart';
 import 'home_page.dart';
 import 'profile_page.dart';
+import 'notifications_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -174,7 +175,14 @@ class _DashboardTopBar extends StatelessWidget {
           const _NavButton(label: 'Dashboard', isActive: true),
           const SizedBox(width: 10),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsPage(),
+                ),
+              );
+            },
             icon: const Icon(Icons.notifications_none, color: Colors.white),
           ),
           _NavButton(

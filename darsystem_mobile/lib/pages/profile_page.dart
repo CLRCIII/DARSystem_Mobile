@@ -6,6 +6,7 @@ import 'edit_profile_page.dart';
 import 'change_password_page.dart';
 import 'my_reports_page.dart';
 import 'activity_logs_page.dart';
+import 'notifications_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -92,7 +93,14 @@ class _ProfileTopBar extends StatelessWidget {
           const _NavButton(label: 'Profile', isActive: true),
           const SizedBox(width: 10),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsPage(),
+                ),
+              );
+            },
             icon: const Icon(Icons.notifications_none, color: Colors.white),
           ),
         ],

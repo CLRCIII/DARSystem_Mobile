@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/logo_container.dart';
 import 'dashboard_page.dart';
 import 'profile_page.dart';
+import 'notifications_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -283,7 +284,14 @@ class _HomeTopBar extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsPage(),
+                ),
+              );
+            },
             icon: const Icon(Icons.notifications_none, color: Colors.white),
           ),
           _TopBarNavButton(

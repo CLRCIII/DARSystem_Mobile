@@ -4,6 +4,7 @@ import 'home_page.dart';
 import 'dashboard_page.dart';
 import 'profile_page.dart';
 import 'report_details_page.dart';
+import 'create_report_page.dart';
 
 class MyReportsPage extends StatelessWidget {
   const MyReportsPage({super.key});
@@ -21,13 +22,15 @@ class MyReportsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    _MyReportsHeaderCard(),
-                    SizedBox(height: 18),
-                    _ReportsSummarySection(),
-                    SizedBox(height: 18),
-                    _ReportsListSection(),
-                  ],
+children: const [
+  _MyReportsHeaderCard(),
+  SizedBox(height: 18),
+  _CreateReportActionCard(),
+  SizedBox(height: 18),
+  _ReportsSummarySection(),
+  SizedBox(height: 18),
+  _ReportsListSection(),
+],
                 ),
               ),
             ),
@@ -137,6 +140,82 @@ class _MyReportsHeaderCard extends StatelessWidget {
             'View your submitted accomplishment reports and their current status.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Color(0xFF6B7280), fontSize: 13.5),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CreateReportActionCard extends StatelessWidget {
+  const _CreateReportActionCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEEF6FF),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFD5E6FB)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFF0C4C7F),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.note_add_outlined, color: Colors.white),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Create a new report',
+                  style: TextStyle(
+                    color: Color(0xFF111827),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'The mobile version now includes the create report feature from the DAR web system.',
+                  style: TextStyle(
+                    color: Color(0xFF4B5563),
+                    fontSize: 12.8,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CreateReportPage(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0A3F72),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Create'),
           ),
         ],
       ),

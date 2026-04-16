@@ -30,9 +30,9 @@ class ReportDetailsPage extends StatelessWidget {
                     const SizedBox(height: 18),
                     _buildDescriptionCard(),
                     const SizedBox(height: 18),
-                    _buildReviewerRemarksCard(),
+                    _buildReviewerRemarksCard(status),
                     const SizedBox(height: 18),
-                    _buildActionButtons(context),
+                    _buildActionButtons(context, status),
                   ],
                 ),
               ),
@@ -176,90 +176,162 @@ class ReportDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildReviewerRemarksCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Reviewer Remarks',
-            style: TextStyle(
-              color: Color(0xFF111827),
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 14),
-          Text(
-            'Your report has been reviewed and approved. The submission is complete and properly documented.',
-            style: TextStyle(
-              color: Color(0xFF4B5563),
-              fontSize: 13.5,
-              height: 1.7,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+Widget _buildReviewerRemarksCard(String status) {
+  final bool isRevision = status == 'For Revision';
 
-  Widget _buildActionButtons(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
+  final String remarks = switch (status) {
+    'Approved' =>
+      'Your report has been reviewed and approved. The submission is complete and properly documented.',
+    'Pending' =>
+      'Your report is still under review. Please wait for the evaluator’s feedback and final status update.',
+    'For Revision' =>
+      'Please revise the activity details and correct the file name before resubmitting the report.',
+    _ =>
+      'Your report has been submitted successfully and is waiting for review.',
+  };
+
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: isRevision
+          ? const Color(0xFFFFF7E8)
+          : const Color(0xFFF7F7F7),
+      borderRadius: BorderRadius.circular(22),
+      border: Border.all(
+        color: isRevision
+            ? const Color(0xFFF3D28B)
+            : const Color(0xFFE5E7EB),
+      ),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.visibility_outlined),
-          label: const Text('View File'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0C4C7F),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+        Text(
+          isRevision ? 'Revision Note' : 'Reviewer Remarks',
+          style: const TextStyle(
+            color: Color(0xFF111827),
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.download_outlined),
-          label: const Text('Download'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0C4C7F),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-        ),
-        OutlinedButton.icon(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back),
-          label: const Text('Back'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF0C4C7F),
-            side: const BorderSide(color: Color(0xFF0C4C7F)),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+        const SizedBox(height: 14),
+        Text(
+          remarks,
+          style: const TextStyle(
+            color: Color(0xFF4B5563),
+            fontSize: 13.5,
+            height: 1.7,
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildActionButtons(BuildContext context, String status) {
+  final bool isApproved = status == 'Approved';
+  final bool canEdit = status != 'Approved';
+  final bool canSubmit = status == 'For Revision' || status == 'Pending';
+
+  return Wrap(
+    spacing: 12,
+    runSpacing: 12,
+    children: [
+      ElevatedButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.visibility_outlined),
+        label: const Text('View File'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0C4C7F),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      ElevatedButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.download_outlined),
+        label: const Text('Download'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0C4C7F),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      ElevatedButton.icon(
+        onPressed: canEdit
+            ? () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Open edit report form')),
+                );
+              }
+            : null,
+        icon: const Icon(Icons.edit_outlined),
+        label: const Text('Edit Report'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: canEdit
+              ? const Color(0xFF2563EB)
+              : const Color(0xFFE5E7EB),
+          foregroundColor: canEdit
+              ? Colors.white
+              : const Color(0xFF9CA3AF),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      ElevatedButton.icon(
+        onPressed: canSubmit
+            ? () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Report submitted successfully.')),
+                );
+              }
+            : null,
+        icon: const Icon(Icons.send_outlined),
+        label: const Text('Submit Report'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: canSubmit
+              ? const Color(0xFF15803D)
+              : const Color(0xFFE5E7EB),
+          foregroundColor: canSubmit
+              ? Colors.white
+              : const Color(0xFF9CA3AF),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      OutlinedButton.icon(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        icon: const Icon(Icons.arrow_back),
+        label: const Text('Back'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF0C4C7F),
+          side: const BorderSide(color: Color(0xFF0C4C7F)),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    ],
+  );
+}
 
   _StatusStyle _getStatusStyle(String status) {
     switch (status) {

@@ -10,15 +10,47 @@ import '../widgets/logo_container.dart';
 import '../services/report_storage.dart';
 import '../models/report_file.dart';
 import 'dashboard_page.dart';
+import 'package:path_provider/path_provider.dart';
 
 class CreateNewReportPage extends StatefulWidget {
-  const CreateNewReportPage({super.key});
+  final ReportFile? existingReport; // 🔥 ADD THIS
+
+  const CreateNewReportPage({super.key, this.existingReport});
 
   @override
   State<CreateNewReportPage> createState() => _CreateNewReportPageState();
 }
 
 class _CreateNewReportPageState extends State<CreateNewReportPage> {
+  @override
+  @override
+  void initState() {
+    super.initState();
+
+    final report = widget.existingReport;
+    if (report == null) return;
+
+    _generatedFileNameController.text = report.name;
+
+    _rows.clear();
+
+    if (report.rows.isNotEmpty) {
+      for (final r in report.rows) {
+        _rows.add(
+          ReportRowData()
+            ..startDateController.text = r.startDate
+            ..endDateController.text = r.endDate
+            ..activityController.text = r.activity
+            ..detailsController.text = r.details
+            ..remarksController.text = r.remarks,
+        );
+      }
+    } else {
+      // fallback so UI doesn’t break
+      _rows.add(ReportRowData());
+    }
+  }
+
   final TextEditingController _generatedFileNameController =
       TextEditingController(text: 'ACCOMPLISHMENT_REPORT.pdf');
 
@@ -146,21 +178,68 @@ class _CreateNewReportPageState extends State<CreateNewReportPage> {
 
     await file.writeAsBytes(bytes);
 
-    await ReportStorage.saveReport(
-      ReportFile(
-        name: fileName,
-        path: file.path,
-        status: 'Submitted',
-        createdAt: DateTime.now(),
-      ),
-    );
-
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Report downloaded & saved')));
   }
 
-  Future<void> _saveOnly() async {
+  Future<void> _saveDraft() async {
+  final bytes = await _generatePdfBytes();
+
+  final fileName = _generatedFileNameController.text.isNotEmpty
+      ? _generatedFileNameController.text
+      : 'draft_report.pdf';
+
+  late File file;
+
+  // 🔥 EDIT MODE
+  if (widget.existingReport != null) {
+    file = File(widget.existingReport!.path);
+  }
+  // 🆕 CREATE MODE
+  else {
+    final directory = await getApplicationDocumentsDirectory();
+    file = File('${directory.path}/$fileName');
+  }
+
+  await file.writeAsBytes(bytes);
+
+  final report = ReportFile(
+    name: fileName,
+    path: file.path,
+    status: 'Draft',
+    createdAt: DateTime.now(),
+    rows: _rows.map((row) {
+      return ReportRow(
+        startDate: row.startDateController.text,
+        endDate: row.endDateController.text,
+        activity: row.activityController.text,
+        details: row.detailsController.text,
+        remarks: row.remarksController.text,
+      );
+    }).toList(),
+  );
+
+  if (widget.existingReport != null) {
+    final list = await ReportStorage.getReports();
+
+    final updatedList = list.map((r) {
+      return r.path == widget.existingReport!.path ? report : r;
+    }).toList();
+
+    await ReportStorage.overwriteReports(updatedList);
+  } else {
+    await ReportStorage.saveReport(report);
+  }
+
+  if (!mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Draft saved successfully')),
+  );
+}
+
+  Future<void> _submitReport() async {
     final bytes = await _generatePdfBytes();
 
     final fileName = _generatedFileNameController.text.isNotEmpty
@@ -168,22 +247,38 @@ class _CreateNewReportPageState extends State<CreateNewReportPage> {
         : 'report.pdf';
 
     final directory = Directory('/storage/emulated/0/Download');
-    final file = File('${directory.path}/$fileName');
 
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+    final file = File(widget.existingReport!.path);
     await file.writeAsBytes(bytes);
 
     await ReportStorage.saveReport(
       ReportFile(
         name: fileName,
         path: file.path,
-        status: 'Submitted',
+        status: 'Draft', // or Submitted
         createdAt: DateTime.now(),
+
+        rows: _rows.map((row) {
+          return ReportRow(
+            startDate: row.startDateController.text,
+            endDate: row.endDateController.text,
+            activity: row.activityController.text,
+            details: row.detailsController.text,
+            remarks: row.remarksController.text,
+          );
+        }).toList(),
       ),
     );
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Report saved successfully')));
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Report submitted successfully')),
+    );
   }
 
   @override
@@ -240,29 +335,33 @@ class _CreateNewReportPageState extends State<CreateNewReportPage> {
                               child: const Text('Preview'),
                             ),
                           ),
+
                           const SizedBox(width: 10),
+
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: _downloadPdf,
+                              onPressed: _saveDraft,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2563EB),
+                                backgroundColor: const Color(0xFFF59E0B),
                                 foregroundColor: Colors.white,
                               ),
                               child: const Text(
-                                'Download',
-                                style: TextStyle(fontSize: 12),
+                                'Save Draft',
+                                style: TextStyle(fontSize: 11),
                               ),
                             ),
                           ),
+
                           const SizedBox(width: 10),
+
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: _saveOnly,
+                              onPressed: _submitReport,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF16A34A),
                                 foregroundColor: Colors.white,
                               ),
-                              child: const Text('Save'),
+                              child: const Text('Submit'),
                             ),
                           ),
                         ],

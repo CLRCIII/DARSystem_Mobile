@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import '../widgets/logo_container.dart';
 import 'home_page.dart';
 import 'dashboard_page.dart';
@@ -272,6 +275,33 @@ class _ReportsListSection extends StatefulWidget {
 
 class _ReportsListSectionState extends State<_ReportsListSection> {
   final TextEditingController _searchController = TextEditingController();
+
+  Future<void> _exportPdf(ReportFile report) async {
+  try {
+    final bytes = await File(report.path).readAsBytes();
+
+    final directory = await getExternalStorageDirectory();
+    final downloadPath = Directory('/storage/emulated/0/Download');
+
+    if (!await downloadPath.exists()) {
+      await downloadPath.create(recursive: true);
+    }
+
+    final newFile = File(
+      '${downloadPath.path}/${report.name}',
+    );
+
+    await newFile.writeAsBytes(bytes);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Downloaded to Downloads folder')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Download failed: $e')),
+    );
+  }
+}
 
   String _selectedStatus = 'All';
   late Future<List<ReportFile>> _futureReports;

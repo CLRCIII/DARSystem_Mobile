@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:darsystem_mobile/services/report_file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
@@ -166,22 +167,24 @@ class _CreateNewReportPageState extends State<CreateNewReportPage> {
     await Printing.layoutPdf(onLayout: (format) async => bytes);
   }
 
-  Future<void> _downloadPdf() async {
-    final bytes = await _generatePdfBytes();
+//     Future<void> _downloadPdf() async {
+//     final bytes = await _generatePdfBytes();
 
-    final fileName = _generatedFileNameController.text.isNotEmpty
-        ? _generatedFileNameController.text
-        : 'report.pdf';
+//     final fileName = _generatedFileNameController.text.isNotEmpty
+//         ? _generatedFileNameController.text
+//         : 'report.pdf';
 
-    final directory = Directory('/storage/emulated/0/Download');
-    final file = File('${directory.path}/$fileName');
+//     await ReportFileService.exportAndOpenPdf(
+//   bytes: bytes,
+//   fileName: fileName,
+// );
 
-    await file.writeAsBytes(bytes);
+//   if (!mounted) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Report downloaded & saved')));
-  }
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     const SnackBar(content: Text('Report downloaded & opened')),
+//   );
+// }
 
   Future<void> _saveDraft() async {
   final bytes = await _generatePdfBytes();

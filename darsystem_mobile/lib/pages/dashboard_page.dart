@@ -217,9 +217,39 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          report.name,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                report.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+
+                            if (report.status.toLowerCase() == 'draft')
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  size: 18,
+                                  color: Color(0xFF0A3F72),
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => CreateNewReportPage(
+                                        existingReport: report,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -249,6 +279,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
+
                         Wrap(
                           spacing: 8,
                           children: [

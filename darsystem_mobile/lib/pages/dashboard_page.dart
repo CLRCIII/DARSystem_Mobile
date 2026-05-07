@@ -1,3 +1,4 @@
+import 'package:darsystem_mobile/services/report_file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 
@@ -229,7 +230,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               ),
                             ),
 
-                            if (report.status.toLowerCase() == 'draft')
+                            if (report.status.toLowerCase() == 'draft') ...[
                               IconButton(
                                 icon: const Icon(
                                   Icons.edit,
@@ -249,6 +250,29 @@ class _DashboardPageState extends State<DashboardPage> {
                                   );
                                 },
                               ),
+
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.download,
+                                  size: 18,
+                                  color: Color(0xFF2563EB),
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () async {
+                                  final result =
+                                      await ReportFileService.exportAndOpenPdf(
+                                        report,
+                                      );
+
+                                  if (!context.mounted) return;
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(result)),
+                                  );
+                                },
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -286,9 +310,9 @@ class _DashboardPageState extends State<DashboardPage> {
                             _actionButton('Open', () {
                               OpenFile.open(report.path);
                             }, const Color(0xFF0A3F72)),
-                            _actionButton('Download', () {
+                            _actionButton('Submit', () {
                               OpenFile.open(report.path);
-                            }, const Color(0xFF2563EB)),
+                            }, const Color.fromARGB(255, 50, 235, 37)),
                             _actionButton('Delete', () async {
                               final updated = reports
                                   .where((r) => r.path != report.path)
